@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitação de Férias</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2330;
+    --border: #30363d;
+    --accent: #f0883e;
+    --accent2: #ff6b35;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --success: #3fb950;
+    --error: #f85149;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -30%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(240,136,62,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    left: -15%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(63,185,80,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 560px;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(240,136,62,0.12);
+    border: 1px solid rgba(240,136,62,0.3);
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--text);
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    font-weight: 300;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .field {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  select, input[type="date"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+
+  .select-wrapper {
+    position: relative;
+  }
+
+  .select-wrapper::after {
+    content: '▾';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    font-size: 0.9rem;
+  }
+
+  select:focus, input[type="date"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(240,136,62,0.15);
+  }
+
+  select option {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .info-box {
+    background: rgba(240,136,62,0.07);
+    border: 1px solid rgba(240,136,62,0.2);
+    border-radius: var(--radius);
+    padding: 0.875rem 1rem;
+    margin-bottom: 1.5rem;
+    display: none;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .info-box.show { display: block; }
+
+  .info-box p {
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .info-box span {
+    font-weight: 700;
+  }
+
+  .days-counter {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    display: none;
+  }
+
+  .days-counter.show { display: block; }
+
+  .days-counter .num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .days-counter .lbl {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  button {
+    width: 100%;
+    background: var(--accent);
+    color: #0d1117;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    letter-spacing: 0.03em;
+  }
+
+  button:hover {
+    background: var(--accent2);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(240,136,62,0.35);
+  }
+
+  button:active { transform: translateY(0); }
+
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    padding: 0.875rem 1.5rem;
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: transform 0.4s cubic-bezier(.175,.885,.32,1.275), opacity 0.4s;
+    opacity: 0;
+    z-index: 1000;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  .toast.success {
+    background: rgba(63,185,80,0.15);
+    border: 1px solid rgba(63,185,80,0.4);
+    color: var(--success);
+  }
+
+  .toast.error {
+    background: rgba(248,81,73,0.15);
+    border: 1px solid rgba(248,81,73,0.4);
+    color: var(--error);
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(13,17,23,0.3);
+    border-top-color: #0d1117;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5rem 0;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="badge">RH · Engenharia</div>
+    <h1>Solicitar<br><span>Férias</span></h1>
+    <p class="subtitle">Preencha os dados abaixo para registrar seu período de férias.</p>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>Colaborador</label>
+      <div class="select-wrapper">
+        <select id="selectNome" onchange="onNomeChange()">
+          <option value="">— Selecione seu nome —</option>
+          <option>EMERSON SOARES PINTO</option>
+          <option>EMERSON MARCIO DOS SANTOS</option>
+          <option>ANTONIO CARLOS PEREIRA DA COSTA</option>
+          <option>MARCOS AGEU BARBOZA DE ARAUJO</option>
+          <option>MARCELO AUGUSTO SILVA</option>
+          <option>RENAN DINIZ DA SILVA</option>
+          <option>EVERTON VINICIUS ZAINIDIN DOS SANTOS</option>
+          <option>FRANCISCO ROCHA DOS SANTOS</option>
+          <option>ALECSANDRO PANTOJA FLORENTINO</option>
+          <option>MARCELO LIMA DA SILVA TEIXEIRA</option>
+          <option>IURY LOURRAN FERNANDES CARDOSO</option>
+          <option>ADRIELYTON MANOEL DA COSTA</option>
+          <option>AIRTON FREIRE DA SILVA</option>
+          <option>MAQUESOOEL MARQUES DA SILVA</option>
+          <option>HUILIAN WILKENS DE ALMEIDA</option>
+          <option>RAILTON KLEY CHAGAS DA COSTA</option>
+          <option>JHONATAN RENAN FEITOSA FIGUEIRA</option>
+          <option>BRENNO BARROS</option>
+          <option>RONILSON MATIAS DO NASCIMENTO</option>
+          <option>ALAN DUMAY DE FREITAS</option>
+          <option>MATHEUS EDUARDO LOPES PEREIRA</option>
+          <option>JOSE RONALDO PEREIRA BARROS</option>
+          <option>LUIS FERNANDES DIOGENES MARTINS</option>
+          <option>ALAN HENRIQUE TAVARES GONÇALVES</option>
+          <option>FABRICIO BELEZA OLIVEIRA</option>
+          <option>RENAN BRUNO DA SILVA IBERNEGARAI</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Período Aquisitivo</label>
+      <div class="select-wrapper">
+        <select id="selectPeriodo" disabled onchange="onPeriodoChange()">
+          <option value="">— Selecione um colaborador primeiro —</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="info-box" id="infoBox">
+      <p>📅 Limite máximo para dobra: <span id="limiteText"></span></p>
+    </div>
+
+    <hr class="divider">
+
+    <div class="date-row">
+      <div class="field">
+        <label>Início das Férias</label>
+        <input type="date" id="dataInicio" disabled onchange="calcDias()">
+      </div>
+      <div class="field">
+        <label>Fim das Férias</label>
+        <input type="date" id="dataFim" disabled onchange="calcDias()">
+      </div>
+    </div>
+
+    <div class="days-counter" id="daysCounter">
+      <div class="num" id="daysNum">0</div>
+      <div class="lbl">dias de férias</div>
+    </div>
+
+    <button id="btnEnviar" onclick="enviar()" disabled>Enviar Solicitação</button>
+  </div>
+
+  <div class="footer">Dados enviados para o Google Sheets · RH Engenharia</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ——— CONFIGURAÇÃO ——————————————————————————————————————
+// Substitua pela URL do seu Google Apps Script Web App:
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzYDN3lY1ioOM-IdaF_vzFXwsS_3aMK-Fug_ZtB7qdO9f-Aataxc8psfyoAdletC9mH/exec';
+// ————————————————————————————————————————————————————————
+
+const dados = {
+  "EMERSON SOARES PINTO": [{ periodo: "20/06/2024 a 19/06/2025", limite: "2026-06-20" }],
+  "EMERSON MARCIO DOS SANTOS": [{ periodo: "12/03/2025 a 11/03/2026", limite: "2027-03-12" }],
+  "ANTONIO CARLOS PEREIRA DA COSTA": [{ periodo: "21/09/2024 a 20/09/2025", limite: "2026-09-21" }],
+  "MARCOS AGEU BARBOZA DE ARAUJO": [{ periodo: "23/11/2024 a 22/11/2025", limite: "2026-11-21" }],
+  "MARCELO AUGUSTO SILVA": [{ periodo: "07/12/2024 a 06/12/2025", limite: "2026-12-07" }],
+  "RENAN DINIZ DA SILVA": [{ periodo: "22/01/2025 a 21/01/2026", limite: "2027-01-22" }],
+  "EVERTON VINICIUS ZAINIDIN DOS SANTOS": [{ periodo: "17/02/2025 a 16/02/2026", limite: "2027-02-17" }],
+  "FRANCISCO ROCHA DOS SANTOS": [{ periodo: "11/03/2025 a 10/03/2026", limite: "2027-03-11" }],
+  "ALECSANDRO PANTOJA FLORENTINO": [{ periodo: "17/03/2025 a 16/03/2026", limite: "2027-03-17" }],
+  "MARCELO LIMA DA SILVA TEIXEIRA": [{ periodo: "17/03/2025 a 16/03/2026", limite: "2027-03-17" }],
+  "IURY LOURRAN FERNANDES CARDOSO": [{ periodo: "20/03/2025 a 19/03/2026", limite: "2027-03-20" }],
+  "ADRIELYTON MANOEL DA COSTA": [{ periodo: "07/04/2025 a 06/04/2026", limite: "2027-04-07" }],
+  "AIRTON FREIRE DA SILVA": [{ periodo: "07/04/2025 a 06/04/2026", limite: "2027-04-07" }],
+  "MAQUESOOEL MARQUES DA SILVA": [{ periodo: "07/04/2025 a 06/04/2026", limite: "2027-04-07" }],
+  "HUILIAN WILKENS DE ALMEIDA": [{ periodo: "08/04/2025 a 07/04/2026", limite: "2027-04-08" }],
+  "RAILTON KLEY CHAGAS DA COSTA": [{ periodo: "01/07/2025 a 30/06/2026", limite: "2027-06-29" }],
+  "JHONATAN RENAN FEITOSA FIGUEIRA": [{ periodo: "01/07/2025 a 30/06/2026", limite: "2027-06-30" }],
+  "BRENNO BARROS": [{ periodo: "22/07/2025 a 21/07/2026", limite: "2027-07-22" }],
+  "RONILSON MATIAS DO NASCIMENTO": [{ periodo: "05/08/2025 a 04/08/2026", limite: "2027-08-05" }],
+  "ALAN DUMAY DE FREITAS": [{ periodo: "14/10/2025 a 13/10/2026", limite: "2027-10-14" }],
+  "MATHEUS EDUARDO LOPES PEREIRA": [{ periodo: "14/10/2025 a 13/10/2026", limite: "2027-10-14" }],
+  "JOSE RONALDO PEREIRA BARROS": [{ periodo: "09/12/2025 a 08/12/2026", limite: "2027-12-07" }],
+  "LUIS FERNANDES DIOGENES MARTINS": [{ periodo: "23/12/2025 a 22/12/2026", limite: "2027-12-12" }],
+  "ALAN HENRIQUE TAVARES GONÇALVES": [{ periodo: "20/01/2026 a 19/01/2027", limite: "2028-01-18" }],
+  "FABRICIO BELEZA OLIVEIRA": [{ periodo: "20/01/2026 a 19/01/2027", limite: "2028-01-18" }],
+  "RENAN BRUNO DA SILVA IBERNEGARAI": [{ periodo: "20/01/2026 a 19/01/2027", limite: "2028-01-18" }]
+};
+
+function onNomeChange() {
+  const nome = document.getElementById('selectNome').value;
+  const sel = document.getElementById('selectPeriodo');
+  const infoBox = document.getElementById('infoBox');
+
+  sel.innerHTML = '<option value="">— Selecione o período —</option>';
+  infoBox.classList.remove('show');
+  disableDatas();
+
+  if (!nome) { sel.disabled = true; return; }
+
+  (dados[nome] || []).forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d.periodo;
+    opt.dataset.limite = d.limite;
+    opt.textContent = d.periodo;
+    sel.appendChild(opt);
+  });
+
+  sel.disabled = false;
+}
+
+function onPeriodoChange() {
+  const sel = document.getElementById('selectPeriodo');
+  const opt = sel.options[sel.selectedIndex];
+  const infoBox = document.getElementById('infoBox');
+
+  if (!sel.value) { disableDatas(); infoBox.classList.remove('show'); return; }
+
+  const limite = opt.dataset.limite;
+  const [y,m,d] = limite.split('-');
+  document.getElementById('limiteText').textContent = `${d}/${m}/${y}`;
+  infoBox.classList.add('show');
+
+  document.getElementById('dataInicio').disabled = false;
+  document.getElementById('dataFim').disabled = false;
+  calcDias();
+}
+
+function disableDatas() {
+  document.getElementById('dataInicio').disabled = true;
+  document.getElementById('dataFim').disabled = true;
+  document.getElementById('dataInicio').value = '';
+  document.getElementById('dataFim').value = '';
+  document.getElementById('daysCounter').classList.remove('show');
+  document.getElementById('btnEnviar').disabled = true;
+}
+
+function calcDias() {
+  const ini = document.getElementById('dataInicio').value;
+  const fim = document.getElementById('dataFim').value;
+  const counter = document.getElementById('daysCounter');
+  const btn = document.getElementById('btnEnviar');
+
+  if (!ini || !fim) { counter.classList.remove('show'); btn.disabled = true; return; }
+
+  const diff = (new Date(fim) - new Date(ini)) / (1000*60*60*24) + 1;
+  if (diff <= 0) {
+    showToast('A data de fim deve ser após a data de início.', 'error');
+    counter.classList.remove('show');
+    btn.disabled = true;
+    return;
+  }
+
+  document.getElementById('daysNum').textContent = diff;
+  counter.classList.add('show');
+  btn.disabled = false;
+}
+
+async function enviar() {
+  const nome = document.getElementById('selectNome').value;
+  const periodo = document.getElementById('selectPeriodo').value;
+  const ini = document.getElementById('dataInicio').value;
+  const fim = document.getElementById('dataFim').value;
+
+  if (!nome || !periodo || !ini || !fim) {
+    showToast('Preencha todos os campos.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnEnviar');
+  btn.innerHTML = '<span class="spinner"></span>Enviando...';
+  btn.disabled = true;
+
+  const payload = {
+    nome,
+    periodo,
+    inicio: ini,
+    fim,
+    dias: document.getElementById('daysNum').textContent,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+
+    if (resp.ok) {
+      showToast('✅ Solicitação enviada com sucesso!', 'success');
+      // reset
+      document.getElementById('selectNome').value = '';
+      document.getElementById('selectPeriodo').innerHTML = '<option value="">— Selecione um colaborador primeiro —</option>';
+      document.getElementById('selectPeriodo').disabled = true;
+      document.getElementById('infoBox').classList.remove('show');
+      disableDatas();
+    } else {
+      throw new Error('Falha na resposta');
+    }
+  } catch(e) {
+    showToast('❌ Erro ao enviar. Verifique a URL do Apps Script.', 'error');
+  } finally {
+    btn.innerHTML = 'Enviar Solicitação';
+    btn.disabled = false;
+  }
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>
